@@ -11,6 +11,7 @@ import {
   FlatList,
   TextInput,
   TouchableOpacity,
+  Modal,
 } from 'react-native';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -21,6 +22,8 @@ import trips from '../data/trips';
 
 import TripCard from '../components/TripCard';
 import CategoryChip from '../components/CategoryChip';
+
+import { useFavorites } from '../context/FavoritesContext';
 
 const categories = [
   'All',
@@ -39,6 +42,17 @@ export default function HomeScreen({
   const [search, setSearch] =
     useState('');
 
+  const [filterVisible, setFilterVisible] =
+    useState(false);
+
+  const [priceFilter, setPriceFilter] =
+    useState('All');
+
+  const {
+    isSaved,
+    toggleSavedTrip,
+  } = useFavorites();
+
   const filteredTrips = useMemo(() => {
     return trips.filter((trip) => {
       const categoryMatch =
@@ -53,9 +67,33 @@ export default function HomeScreen({
           .toLowerCase()
           .includes(search.toLowerCase());
 
-      return categoryMatch && searchMatch;
+      let priceMatch = true;
+
+      if (priceFilter === 'Under $50') {
+        priceMatch = trip.price < 50;
+      }
+
+      if (priceFilter === '$50 - $75') {
+        priceMatch =
+          trip.price >= 50 &&
+          trip.price <= 75;
+      }
+
+      if (priceFilter === 'Above $75') {
+        priceMatch = trip.price > 75;
+      }
+
+      return (
+        categoryMatch &&
+        searchMatch &&
+        priceMatch
+      );
     });
-  }, [activeCategory, search]);
+  }, [
+    activeCategory,
+    search,
+    priceFilter,
+  ]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -84,12 +122,19 @@ export default function HomeScreen({
 
             <TouchableOpacity
               style={styles.notificationButton}
+              onPress={() =>
+                navigation.navigate(
+                  'Notifications'
+                )
+              }
             >
               <Ionicons
                 name="notifications-outline"
                 size={23}
                 color={colors.text}
               />
+
+              <View style={styles.notificationDot} />
             </TouchableOpacity>
           </View>
 
@@ -115,6 +160,9 @@ export default function HomeScreen({
 
             <TouchableOpacity
               style={styles.filterButton}
+              onPress={() =>
+                setFilterVisible(true)
+              }
             >
               <Ionicons
                 name="options-outline"
@@ -143,35 +191,81 @@ export default function HomeScreen({
             ))}
           </ScrollView>
 
+          {priceFilter !== 'All' && (
+            <View style={styles.activeFilterRow}>
+              <Text style={styles.activeFilterText}>
+                Price filter: {priceFilter}
+              </Text>
+
+              <TouchableOpacity
+                onPress={() =>
+                  setPriceFilter('All')
+                }
+              >
+                <Ionicons
+                  name="close-circle"
+                  size={20}
+                  color={colors.primary}
+                />
+              </TouchableOpacity>
+            </View>
+          )}
+
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>
               Popular Destinations
             </Text>
 
-            <TouchableOpacity>
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate(
+                  'AllTrips'
+                )
+              }
+            >
               <Text style={styles.seeAll}>
                 See All
               </Text>
             </TouchableOpacity>
           </View>
 
-          <FlatList
-            horizontal
-            data={filteredTrips}
-            keyExtractor={(item) => item.id}
-            showsHorizontalScrollIndicator={false}
-            renderItem={({ item }) => (
-              <TripCard
-                trip={item}
-                onPress={() =>
-                  navigation.navigate(
-                    'TripDetails',
-                    { trip: item }
-                  )
-                }
+          {filteredTrips.length > 0 ? (
+            <FlatList
+              horizontal
+              data={filteredTrips}
+              keyExtractor={(item) => item.id}
+              showsHorizontalScrollIndicator={false}
+              renderItem={({ item }) => (
+                <TripCard
+                  trip={item}
+                  saved={isSaved(item.id)}
+                  onToggleSaved={ toggleSavedTrip }
+                  onPress={() =>
+                    navigation.navigate(
+                      'TripDetails',
+                      { trip: item }
+                    )
+                  }
+                />
+              )}
+            />
+          ) : (
+            <View style={styles.noResults}>
+              <Ionicons
+                name="search-outline"
+                size={32}
+                color={colors.textSecondary}
               />
-            )}
-          />
+
+              <Text style={styles.noResultsTitle}>
+                No destinations found
+              </Text>
+
+              <Text style={styles.noResultsText}>
+                Try another search or filter.
+              </Text>
+            </View>
+          )}
 
           <View style={styles.exploreBox}>
             <View>
@@ -195,6 +289,89 @@ export default function HomeScreen({
           </View>
         </View>
       </ScrollView>
+
+      <Modal
+        visible={filterVisible}
+        animationType="slide"
+        transparent
+        onRequestClose={() =>
+          setFilterVisible(false)
+        }
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.filterModal}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>
+                Filter Trips
+              </Text>
+
+              <TouchableOpacity
+                onPress={() =>
+                  setFilterVisible(false)
+                }
+              >
+                <Ionicons
+                  name="close"
+                  size={25}
+                  color={colors.text}
+                />
+              </TouchableOpacity>
+            </View>
+
+            <Text style={styles.filterLabel}>
+              Price Range
+            </Text>
+
+            {[
+              'All',
+              'Under $50',
+              '$50 - $75',
+              'Above $75',
+            ].map((option) => (
+              <TouchableOpacity
+                key={option}
+                style={[
+                  styles.filterOption,
+                  priceFilter === option &&
+                    styles.selectedFilterOption,
+                ]}
+                onPress={() =>
+                  setPriceFilter(option)
+                }
+              >
+                <Text
+                  style={[
+                    styles.filterOptionText,
+                    priceFilter === option &&
+                      styles.selectedFilterText,
+                  ]}
+                >
+                  {option}
+                </Text>
+
+                {priceFilter === option && (
+                  <Ionicons
+                    name="checkmark-circle"
+                    size={21}
+                    color={colors.primary}
+                  />
+                )}
+              </TouchableOpacity>
+            ))}
+
+            <TouchableOpacity
+              style={styles.applyButton}
+              onPress={() =>
+                setFilterVisible(false)
+              }
+            >
+              <Text style={styles.applyButtonText}>
+                Apply Filter
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -243,6 +420,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
+  notificationDot: {
+    position: 'absolute',
+    right: 8,
+    top: 7,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#EF4444',
+    borderWidth: 1.5,
+    borderColor: colors.white,
+  },
+
   heading: {
     fontSize: 34,
     lineHeight: 41,
@@ -282,6 +471,22 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
 
+  activeFilterRow: {
+    marginTop: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    backgroundColor: colors.primaryLight,
+    borderRadius: 13,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+
+  activeFilterText: {
+    color: colors.primaryDark,
+    fontWeight: '700',
+  },
+
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -299,6 +504,23 @@ const styles = StyleSheet.create({
   seeAll: {
     color: colors.primary,
     fontWeight: '700',
+  },
+
+  noResults: {
+    height: 220,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  noResultsTitle: {
+    fontWeight: '800',
+    fontSize: 17,
+    marginTop: 12,
+  },
+
+  noResultsText: {
+    color: colors.textSecondary,
+    marginTop: 5,
   },
 
   exploreBox: {
@@ -331,5 +553,75 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primaryLight,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+    justifyContent: 'flex-end',
+  },
+
+  filterModal: {
+    backgroundColor: colors.white,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    padding: 24,
+    paddingBottom: 35,
+  },
+
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: colors.text,
+  },
+
+  filterLabel: {
+    marginTop: 25,
+    marginBottom: 10,
+    color: colors.textSecondary,
+    fontWeight: '700',
+  },
+
+  filterOption: {
+    paddingVertical: 15,
+    paddingHorizontal: 15,
+    borderRadius: 15,
+    marginBottom: 8,
+    backgroundColor: colors.background,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+
+  selectedFilterOption: {
+    backgroundColor: colors.primaryLight,
+  },
+
+  filterOptionText: {
+    color: colors.text,
+  },
+
+  selectedFilterText: {
+    color: colors.primaryDark,
+    fontWeight: '800',
+  },
+
+  applyButton: {
+    marginTop: 18,
+    backgroundColor: colors.primary,
+    paddingVertical: 16,
+    borderRadius: 17,
+    alignItems: 'center',
+  },
+
+  applyButtonText: {
+    color: colors.white,
+    fontWeight: '800',
+    fontSize: 16,
   },
 });

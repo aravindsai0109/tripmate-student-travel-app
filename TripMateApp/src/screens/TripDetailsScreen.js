@@ -13,6 +13,8 @@ import {
   Ionicons,
 } from '@expo/vector-icons';
 
+import { useFavorites } from '../context/FavoritesContext';
+
 import colors from '../theme/colors';
 
 export default function TripDetailsScreen({
@@ -20,6 +22,13 @@ export default function TripDetailsScreen({
   navigation,
 }) {
   const { trip } = route.params;
+
+  const {
+  isSaved,
+  toggleSavedTrip,
+} = useFavorites();
+
+const saved = isSaved(trip.id);
 
   return (
     <View style={styles.page}>
@@ -47,15 +56,16 @@ export default function TripDetailsScreen({
             </TouchableOpacity>
 
             <View style={styles.rightControls}>
-              <TouchableOpacity
-                style={styles.circleButton}
-              >
-                <Ionicons
-                  name="heart-outline"
-                  size={21}
-                  color={colors.white}
-                />
-              </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.circleButton}
+              onPress={() => toggleSavedTrip(trip)}
+            >
+              <Ionicons
+                name={saved ? 'heart' : 'heart-outline'}
+                size={21}
+                color={saved ? '#EF4444' : colors.white}
+              />
+            </TouchableOpacity>
 
               <TouchableOpacity
                 style={[

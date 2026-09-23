@@ -26,6 +26,9 @@ import SavedScreen from '../screens/SavedScreen';
 import MyTripsScreen from '../screens/MyTripsScreen';
 import ProfilePlaceholderScreen from '../screens/ProfilePlaceholderScreen';
 
+import AllTripScreen from '../screens/AllTripScreen';
+import NotificationsScreen from '../screens/NotificationsScreen';
+
 import colors from '../theme/colors';
 
 const Stack =
@@ -152,6 +155,17 @@ export default function AppNavigator() {
           name="Booking"
           component={BookingScreen}
         />
+
+        <Stack.Screen
+          name="AllTrips"
+          component={AllTripScreen}
+        />
+
+        <Stack.Screen
+          name="Notifications"
+          component={NotificationsScreen}
+        />
+
       </Stack.Navigator>
     </NavigationContainer>
   );
