@@ -20,6 +20,12 @@ import {
 
 import colors from '../theme/colors';
 
+import { auth } from '../../firebaseConfig';
+
+import {
+  createRSVP,
+} from '../services/rsvpService';
+
 export default function BookingScreen({
   route,
   navigation,
@@ -28,6 +34,9 @@ export default function BookingScreen({
 
   const [guestCount, setGuestCount] =
     useState(1);
+
+  const [submitting, setSubmitting] =
+    useState(false);
 
   const serviceFee = 5;
 
@@ -58,17 +67,62 @@ export default function BookingScreen({
     }
   };
 
-  const handleConfirmRSVP = () => {
-    Alert.alert(
-      'Reservation Preview',
-      `${guestCount} ${
-        guestCount === 1
-          ? 'student'
-          : 'students'
-      } selected for ${trip.title}.\n\n` +
-        `Total: $${total}\n\n` +
-        `Firebase RSVP persistence will be integrated by the backend team member.`
-    );
+  const handleConfirmRSVP = async () => {
+    if (submitting) {
+      return;
+    }
+
+    const user = auth.currentUser;
+
+    if (!user) {
+      Alert.alert(
+        'Login required',
+        'Please log in before reserving a trip.'
+      );
+
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+
+      const result = await createRSVP({
+        userId: user.uid,
+        tripId: trip.id,
+        guestCount,
+        serviceFee,
+      });
+
+      Alert.alert(
+        'Reservation Confirmed',
+        `${result.guestCount} ${
+          result.guestCount === 1
+            ? 'student'
+            : 'students'
+        } reserved for ${trip.title}.\n\n` +
+          `Total: $${result.totalPrice}`,
+        [
+          {
+            text: 'OK',
+            onPress: () =>
+              navigation.goBack(),
+          },
+        ]
+      );
+    } catch (error) {
+      console.error(
+        'RSVP error:',
+        error
+      );
+
+      Alert.alert(
+        'Reservation failed',
+        error.message ||
+          'Something went wrong. Please try again.'
+      );
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -256,24 +310,23 @@ export default function BookingScreen({
           {/* CONFIRM */}
 
           <TouchableOpacity
-            style={styles.confirmButton}
-            onPress={
-              handleConfirmRSVP
-            }
+            style={[
+              styles.confirmButton,
+              submitting && styles.disabledConfirmButton,
+            ]}
+            onPress={handleConfirmRSVP}
+            disabled={submitting}
           >
-            <Text
-              style={
-                styles.confirmText
-              }
-            >
-              Confirm RSVP
+            <Text style={styles.confirmText}>
+              {submitting
+                ? 'Confirming...'
+                : 'Confirm RSVP'}
             </Text>
           </TouchableOpacity>
 
           <Text style={styles.note}>
-            Demo interface only. Actual
-            RSVP persistence will be
-            integrated with Firebase.
+            Your reservation will be securely saved
+            to your TripMate account.
           </Text>
         </View>
       </ScrollView>
@@ -644,5 +697,8 @@ const styles = StyleSheet.create({
     fontSize: 11,
 
     lineHeight: 17,
+  },
+  disabledConfirmButton: {
+  opacity: 0.6,
   },
 });
