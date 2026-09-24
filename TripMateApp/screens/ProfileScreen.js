@@ -15,7 +15,7 @@ import {
 
 import { useAuth } from '../context/AuthContext';
 
-export default function ProfileScreen({ onBack }) {
+export default function ProfileScreen({ onBack, onOpenSettings,}) {
   const {
     user,
     updateDisplayName,
@@ -143,6 +143,15 @@ export default function ProfileScreen({ onBack }) {
             : 'Save Profile'}
         </Text>
       </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.settingsButton}
+        onPress={onOpenSettings}
+      >
+        <Text style={styles.settingsButtonText}>
+          Settings
+        </Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 }
@@ -237,6 +246,20 @@ const styles = StyleSheet.create({
 
   saveButtonText: {
     color: '#ffffff',
+    textAlign: 'center',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+
+  settingsButton: {
+    borderWidth: 1,
+    borderColor: '#222222',
+    padding: 15,
+    borderRadius: 10,
+    marginTop: 12,
+  },
+
+  settingsButtonText: {
     textAlign: 'center',
     fontWeight: 'bold',
     fontSize: 16,

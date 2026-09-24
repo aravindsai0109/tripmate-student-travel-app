@@ -39,7 +39,7 @@ export default function WelcomeScreen({ navigation }) {
 
         <TouchableOpacity
           style={styles.button}
-          onPress={() => navigation.replace('MainTabs')}
+          onPress={() => navigation.navigate('Login')}
         >
           <Text style={styles.buttonText}>
             Get Started
