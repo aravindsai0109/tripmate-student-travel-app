@@ -61,7 +61,44 @@ UI/UX design, and tested registration, valid/invalid login, logout,
 profile updates, protected access and persistent user sessions before
 group integration.
 
-Member 3 – Backend, Database & RSVP
+### Sujata – Database, RSVP & Trip Management Developer
+
+Sujata configured the Cloud Firestore database for TripMate and developed the
+application's persistent trip and reservation data layer. She created and
+maintained the Firestore trip records, migrated the original local sample trip
+data to Firestore, and connected the Home, All Destinations and Trip Details
+flows to dynamically loaded database content without changing the existing
+TripMate UI/UX design.
+
+She implemented the authenticated RSVP workflow using Firebase Authentication
+and Cloud Firestore. The reservation functionality supports single and
+multi-student bookings, calculates booking totals, stores confirmed RSVP data,
+prevents duplicate reservations by the same user for the same trip, and checks
+the remaining trip capacity before accepting a booking. Firestore transactions
+were used so RSVP creation and reserved-place updates remain consistent.
+
+Sujata also developed the My Trips data functionality so authenticated users can
+view only the trips they have successfully joined. RSVP cancellation was
+implemented so users can cancel their own reservations, remove the corresponding
+RSVP record and automatically return the reserved places to the trip capacity.
+The RSVP and trip data were linked using authenticated Firebase user IDs and
+Firestore document IDs to maintain user-specific reservation records.
+
+She integrated organiser trip-management functionality with the role-based
+authentication structure developed by Samiksha. Authorised organiser accounts
+can access the Manage Trips interface to create, edit and delete Firestore trip
+records, while normal student accounts do not receive access to organiser-only
+management functions. Trip validation was also added before database writes,
+including checks for required fields, valid price, capacity, rating and image
+data.
+
+Sujata tested Firestore trip loading, successful RSVP creation, multi-guest
+reservations, duplicate RSVP prevention, trip-capacity restrictions, My Trips,
+reservation cancellation and organiser Create/Edit/Delete operations. She also
+checked her implemented database and reservation functionality on Android and
+iOS as part of the cross-platform testing process and maintained meaningful Git
+commits throughout the development and integration work.
+
 Member 4 – Real-Time Features, Testing & Integration
 
 ## Setup Guide
