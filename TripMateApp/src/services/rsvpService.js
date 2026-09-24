@@ -1,8 +1,14 @@
 import {
+  collection,
+  deleteDoc,
   doc,
+  getDocs,
+  query,
   runTransaction,
   serverTimestamp,
+  where,
 } from 'firebase/firestore';
+
 
 import { db } from '../../firebaseConfig';
 
@@ -128,6 +134,121 @@ export const createRSVP = async ({
         rsvpId,
         guestCount,
         totalPrice,
+      };
+    }
+  );
+};
+
+/**
+ * Get all confirmed RSVPs belonging to one user.
+ */
+export const getUserRSVPs = async (userId) => {
+  if (!userId) {
+    return [];
+  }
+
+  try {
+    const rsvpQuery = query(
+      collection(db, 'rsvps'),
+      where('userId', '==', userId)
+    );
+
+    const snapshot = await getDocs(rsvpQuery);
+
+    return snapshot.docs.map((rsvpDoc) => ({
+      id: rsvpDoc.id,
+      ...rsvpDoc.data(),
+    }));
+  } catch (error) {
+    console.error(
+      'Error loading user RSVPs:',
+      error
+    );
+
+    throw error;
+  }
+};
+
+/**
+ * Cancel an RSVP and return its reserved
+ * places back to the trip.
+ */
+export const cancelRSVP = async ({
+  rsvpId,
+  userId,
+}) => {
+  if (!rsvpId || !userId) {
+    throw new Error(
+      'Reservation information is missing.'
+    );
+  }
+
+  const rsvpRef = doc(
+    db,
+    'rsvps',
+    rsvpId
+  );
+
+  return runTransaction(
+    db,
+    async (transaction) => {
+      const rsvpSnapshot =
+        await transaction.get(rsvpRef);
+
+      if (!rsvpSnapshot.exists()) {
+        throw new Error(
+          'This reservation no longer exists.'
+        );
+      }
+
+      const rsvpData =
+        rsvpSnapshot.data();
+
+      if (rsvpData.userId !== userId) {
+        throw new Error(
+          'You cannot cancel another user’s reservation.'
+        );
+      }
+
+      const tripRef = doc(
+        db,
+        'trips',
+        String(rsvpData.tripId)
+      );
+
+      const tripSnapshot =
+        await transaction.get(tripRef);
+
+      if (!tripSnapshot.exists()) {
+        throw new Error(
+          'The trip linked to this reservation no longer exists.'
+        );
+      }
+
+      const tripData =
+        tripSnapshot.data();
+
+      const currentReserved =
+        Number(tripData.reservedSpots) || 0;
+
+      const guestCount =
+        Number(rsvpData.guestCount) || 0;
+
+      const newReservedSpots =
+        Math.max(
+          0,
+          currentReserved - guestCount
+        );
+
+      transaction.update(tripRef, {
+        reservedSpots: newReservedSpots,
+      });
+
+      transaction.delete(rsvpRef);
+
+      return {
+        tripId: rsvpData.tripId,
+        guestCount,
       };
     }
   );
