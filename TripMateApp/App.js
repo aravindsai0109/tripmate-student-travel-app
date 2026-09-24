@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+import React, {
+  useEffect,
+  useState,
+} from 'react';
 
 import {
   View,
@@ -8,20 +11,40 @@ import {
   ActivityIndicator,
 } from 'react-native';
 
-import { AuthProvider, useAuth } from './context/AuthContext';
+import {
+  AuthProvider,
+  useAuth,
+} from './context/AuthContext';
 
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
+import ProfileScreen from './screens/ProfileScreen';
+import SettingsScreen from './screens/SettingsScreen';
 
 function AppContent() {
-  const { user, loading, logout } = useAuth();
+  const {
+    user,
+    loading,
+    logout,
+  } = useAuth();
 
-  const [showRegister, setShowRegister] = useState(false);
+  const [showRegister, setShowRegister] =
+    useState(false);
+
+  const [currentScreen, setCurrentScreen] =
+    useState('home');
+
+  useEffect(() => {
+    if (!user) {
+      setCurrentScreen('home');
+    }
+  }, [user]);
 
   if (loading) {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" />
+
         <Text style={styles.loadingText}>
           Checking authentication...
         </Text>
@@ -29,53 +52,102 @@ function AppContent() {
     );
   }
 
-  if (user) {
+  if (!user) {
+    if (showRegister) {
+      return (
+        <RegisterScreen
+          onGoToLogin={() =>
+            setShowRegister(false)
+          }
+        />
+      );
+    }
+
     return (
-      <View style={styles.center}>
-        <Text style={styles.heading}>
-          TripMate
-        </Text>
-
-        <Text style={styles.success}>
-          Authentication successful
-        </Text>
-
-        <Text style={styles.label}>
-          Signed in as:
-        </Text>
-
-        <Text style={styles.userText}>
-          {user.displayName || 'TripMate User'}
-        </Text>
-
-        <Text style={styles.email}>
-          {user.email}
-        </Text>
-
-        <TouchableOpacity
-          style={styles.logoutButton}
-          onPress={logout}
-        >
-          <Text style={styles.logoutText}>
-            Logout
-          </Text>
-        </TouchableOpacity>
-      </View>
+      <LoginScreen
+        onGoToRegister={() =>
+          setShowRegister(true)
+        }
+      />
     );
   }
 
-  if (showRegister) {
+  if (currentScreen === 'profile') {
     return (
-      <RegisterScreen
-        onGoToLogin={() => setShowRegister(false)}
+      <ProfileScreen
+        onBack={() =>
+          setCurrentScreen('home')
+        }
+      />
+    );
+  }
+
+  if (currentScreen === 'settings') {
+    return (
+      <SettingsScreen
+        onBack={() =>
+          setCurrentScreen('home')
+        }
+        onOpenProfile={() =>
+          setCurrentScreen('profile')
+        }
       />
     );
   }
 
   return (
-    <LoginScreen
-      onGoToRegister={() => setShowRegister(true)}
-    />
+    <View style={styles.center}>
+      <Text style={styles.heading}>
+        TripMate
+      </Text>
+
+      <Text style={styles.success}>
+        Authentication successful
+      </Text>
+
+      <Text style={styles.label}>
+        Welcome
+      </Text>
+
+      <Text style={styles.userName}>
+        {user.displayName || 'TripMate User'}
+      </Text>
+
+      <Text style={styles.email}>
+        {user.email}
+      </Text>
+
+      <TouchableOpacity
+        style={styles.primaryButton}
+        onPress={() =>
+          setCurrentScreen('profile')
+        }
+      >
+        <Text style={styles.primaryButtonText}>
+          My Profile
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.secondaryButton}
+        onPress={() =>
+          setCurrentScreen('settings')
+        }
+      >
+        <Text style={styles.secondaryButtonText}>
+          Settings
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.logoutButton}
+        onPress={logout}
+      >
+        <Text style={styles.logoutText}>
+          Logout
+        </Text>
+      </TouchableOpacity>
+    </View>
   );
 }
 
@@ -103,40 +175,66 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 32,
     fontWeight: 'bold',
-    marginBottom: 24,
+    marginBottom: 20,
   },
 
   success: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 24,
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 30,
   },
 
   label: {
-    color: '#666',
+    color: '#666666',
   },
 
-  userText: {
-    fontSize: 20,
+  userName: {
+    fontSize: 22,
     fontWeight: 'bold',
     marginTop: 6,
   },
 
   email: {
-    fontSize: 16,
-    marginTop: 4,
+    fontSize: 15,
+    color: '#666666',
+    marginTop: 5,
     marginBottom: 30,
   },
 
-  logoutButton: {
+  primaryButton: {
+    width: '100%',
     backgroundColor: '#222222',
-    paddingVertical: 14,
-    paddingHorizontal: 40,
+    padding: 15,
     borderRadius: 10,
+    marginBottom: 12,
+  },
+
+  primaryButtonText: {
+    color: '#ffffff',
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
+
+  secondaryButton: {
+    width: '100%',
+    borderWidth: 1,
+    borderColor: '#222222',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 12,
+  },
+
+  secondaryButtonText: {
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
+
+  logoutButton: {
+    marginTop: 15,
+    padding: 12,
   },
 
   logoutText: {
-    color: '#ffffff',
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
 });
