@@ -1,4 +1,5 @@
 import React, {
+  useEffect,
   useMemo,
   useState,
 } from 'react';
@@ -18,7 +19,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
 import colors from '../theme/colors';
-import trips from '../data/trips';
+import { getTrips } from '../services/tripService';
 
 import TripCard from '../components/TripCard';
 import CategoryChip from '../components/CategoryChip';
@@ -36,6 +37,10 @@ const categories = [
 export default function HomeScreen({
   navigation,
 }) {
+  const [trips, setTrips] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
+
   const [activeCategory, setActiveCategory] =
     useState('All');
 
@@ -52,6 +57,32 @@ export default function HomeScreen({
     isSaved,
     toggleSavedTrip,
   } = useFavorites();
+
+  useEffect(() => {
+  const loadTrips = async () => {
+    try {
+      setLoading(true);
+      setLoadError('');
+
+      const firestoreTrips = await getTrips();
+
+      setTrips(firestoreTrips);
+    } catch (error) {
+      console.error(
+        'Failed to load trips:',
+        error
+      );
+
+      setLoadError(
+        'Unable to load trips. Please try again.'
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  loadTrips();
+}, []);
 
   const filteredTrips = useMemo(() => {
     return trips.filter((trip) => {
@@ -89,11 +120,12 @@ export default function HomeScreen({
         priceMatch
       );
     });
-  }, [
-    activeCategory,
-    search,
-    priceFilter,
-  ]);
+}, [
+  trips,
+  activeCategory,
+  search,
+  priceFilter,
+]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -229,7 +261,35 @@ export default function HomeScreen({
             </TouchableOpacity>
           </View>
 
-          {filteredTrips.length > 0 ? (
+          {loading ? (
+            <View style={styles.noResults}>
+              <Ionicons
+                name="cloud-download-outline"
+                size={32}
+                color={colors.primary}
+              />
+
+              <Text style={styles.noResultsTitle}>
+                Loading destinations...
+              </Text>
+            </View>
+          ) : loadError ? (
+            <View style={styles.noResults}>
+              <Ionicons
+                name="alert-circle-outline"
+                size={32}
+                color={colors.textSecondary}
+              />
+
+              <Text style={styles.noResultsTitle}>
+                Unable to load destinations
+              </Text>
+
+              <Text style={styles.noResultsText}>
+                {loadError}
+              </Text>
+            </View>
+          ) : filteredTrips.length > 0 ? (
             <FlatList
               horizontal
               data={filteredTrips}
@@ -239,7 +299,7 @@ export default function HomeScreen({
                 <TripCard
                   trip={item}
                   saved={isSaved(item.id)}
-                  onToggleSaved={ toggleSavedTrip }
+                  onToggleSaved={toggleSavedTrip}
                   onPress={() =>
                     navigation.navigate(
                       'TripDetails',

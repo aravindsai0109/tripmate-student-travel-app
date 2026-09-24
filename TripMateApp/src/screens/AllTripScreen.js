@@ -1,4 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 
 import {
   View,
@@ -12,7 +16,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
-import trips from '../data/trips';
+import { getTrips } from '../services/tripService';
+
 import TripCard from '../components/TripCard';
 import colors from '../theme/colors';
 
@@ -23,10 +28,40 @@ export default function AllTripsScreen({
 }) {
   const [search, setSearch] = useState('');
 
+  const [trips, setTrips] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
+
   const {
     isSaved,
     toggleSavedTrip,
   } = useFavorites();
+
+  useEffect(() => {
+    const loadTrips = async () => {
+      try {
+        setLoading(true);
+        setLoadError('');
+
+        const firestoreTrips = await getTrips();
+
+        setTrips(firestoreTrips);
+      } catch (error) {
+        console.error(
+          'Failed to load trips:',
+          error
+        );
+
+        setLoadError(
+          'Unable to load destinations.'
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadTrips();
+  }, []);
 
   const filteredTrips = useMemo(() => {
     return trips.filter((trip) =>
@@ -40,7 +75,7 @@ export default function AllTripsScreen({
         .toLowerCase()
         .includes(search.toLowerCase())
     );
-  }, [search]);
+  }, [trips, search]);
 
   return (
     <SafeAreaView style={styles.page}>
@@ -77,40 +112,88 @@ export default function AllTripsScreen({
         />
       </View>
 
-    <FlatList
-    data={filteredTrips}
-    keyExtractor={(item) => item.id}
+      {loading ? (
+        <View style={styles.messageContainer}>
+          <Ionicons
+            name="cloud-download-outline"
+            size={34}
+            color={colors.primary}
+          />
 
-    numColumns={2}
-
-    showsVerticalScrollIndicator={false}
-
-    columnWrapperStyle={{
-        justifyContent: 'space-between',
-    }}
-
-    contentContainerStyle={{
-        paddingHorizontal: 20,
-        paddingBottom: 30,
-    }}
-
-    renderItem={({ item }) => (
-        <View style={{ marginBottom: 16 }}>
-        <TripCard
-            trip={item}
-            variant="grid"
-            saved={isSaved(item.id)}
-            onToggleSaved={toggleSavedTrip}
-            onPress={() =>
-            navigation.navigate(
-                'TripDetails',
-                { trip: item }
-            )
-            }
-        />
+          <Text style={styles.messageTitle}>
+            Loading destinations...
+          </Text>
         </View>
-    )}
-    />
+      ) : loadError ? (
+        <View style={styles.messageContainer}>
+          <Ionicons
+            name="alert-circle-outline"
+            size={34}
+            color={colors.textSecondary}
+          />
+
+          <Text style={styles.messageTitle}>
+            Unable to load destinations
+          </Text>
+
+          <Text style={styles.messageText}>
+            {loadError}
+          </Text>
+        </View>
+      ) : (
+        <FlatList
+          data={filteredTrips}
+          keyExtractor={(item) => item.id}
+
+          numColumns={2}
+
+          showsVerticalScrollIndicator={false}
+
+          columnWrapperStyle={{
+            justifyContent: 'space-between',
+          }}
+
+          contentContainerStyle={{
+            paddingHorizontal: 20,
+            paddingBottom: 30,
+          }}
+
+          ListEmptyComponent={
+            <View style={styles.messageContainer}>
+              <Ionicons
+                name="search-outline"
+                size={34}
+                color={colors.textSecondary}
+              />
+
+              <Text style={styles.messageTitle}>
+                No destinations found
+              </Text>
+
+              <Text style={styles.messageText}>
+                Try another search.
+              </Text>
+            </View>
+          }
+
+          renderItem={({ item }) => (
+            <View style={{ marginBottom: 16 }}>
+              <TripCard
+                trip={item}
+                variant="grid"
+                saved={isSaved(item.id)}
+                onToggleSaved={toggleSavedTrip}
+                onPress={() =>
+                  navigation.navigate(
+                    'TripDetails',
+                    { trip: item }
+                  )
+                }
+              />
+            </View>
+          )}
+        />
+      )}
     </SafeAreaView>
   );
 }
@@ -159,5 +242,27 @@ const styles = StyleSheet.create({
 
   cardWrapper: {
     marginBottom: 20,
+  },
+
+  messageContainer: {
+    flex: 1,
+    minHeight: 250,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 30,
+  },
+
+  messageTitle: {
+    marginTop: 12,
+    fontSize: 17,
+    fontWeight: '800',
+    color: colors.text,
+    textAlign: 'center',
+  },
+
+  messageText: {
+    marginTop: 6,
+    color: colors.textSecondary,
+    textAlign: 'center',
   },
 });
