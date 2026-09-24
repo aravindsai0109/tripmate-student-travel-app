@@ -16,8 +16,22 @@ comments, and manage their profiles.
 - Cloud Firestore
 - React Context API
 
-## Team Roles
-Member 1 – Frontend & UI/UX
+## Team Roles and Contribution
+### Aravindsai – Frontend & UI/UX Developer
+
+Aravindsai established the React Native Expo project foundation and configured
+the application's navigation structure. He developed the TripMate splash and
+welcome screens, Travel & Exploration home interface, reusable trip cards,
+trip discovery and Trip Details interfaces.
+
+He also implemented destination search, category and price filtering, See All
+navigation, the notification interface, favourite/saved-trip functionality,
+responsive two-column destination grids, native trip sharing, and the
+multi-guest reservation frontend with dynamic price calculation.
+
+He also performed frontend navigation, responsive-layout and end-to-end
+functional testing before group integration.
+
 Member 2 – Authentication & Security
 Member 3 – Backend, Database & RSVP
 Member 4 – Real-Time Features, Testing & Integration
