@@ -13,7 +13,10 @@ import {
   ScrollView,
 } from 'react-native';
 
+import { Ionicons } from '@expo/vector-icons';
+
 import { useAuth } from '../context/AuthContext';
+import colors from '../src/theme/colors';
 
 export default function ProfileScreen({ onBack, onOpenSettings,}) {
   const {
@@ -69,14 +72,17 @@ export default function ProfileScreen({ onBack, onOpenSettings,}) {
     <ScrollView
       contentContainerStyle={styles.container}
     >
-      <TouchableOpacity
-        style={styles.backButton}
-        onPress={onBack}
-      >
-        <Text style={styles.backText}>
-          ← Back
-        </Text>
-      </TouchableOpacity>
+    <TouchableOpacity
+      style={styles.backButton}
+      onPress={onBack}
+      activeOpacity={0.7}
+    >
+      <Ionicons
+        name="chevron-back"
+        size={36}
+        color={colors.textPrimary || '#111827'}
+      />
+    </TouchableOpacity>
 
       <Text style={styles.heading}>
         My Profile
@@ -159,31 +165,32 @@ export default function ProfileScreen({ onBack, onOpenSettings,}) {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    padding: 24,
-    backgroundColor: '#ffffff',
+    paddingHorizontal: 24,
+    paddingTop: 55,
+    paddingBottom: 40,
+    backgroundColor: colors.background,
   },
 
   backButton: {
-    marginTop: 18,
-    marginBottom: 20,
-  },
-
-  backText: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
+    alignSelf: 'flex-start',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 14,
+    marginLeft: -6,
+},
 
   heading: {
     fontSize: 28,
-    fontWeight: 'bold',
+    fontWeight: '800',
+    color: colors.textPrimary || '#111827',
     marginBottom: 24,
   },
 
   avatar: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    backgroundColor: '#222222',
+    width: 92,
+    height: 92,
+    borderRadius: 46,
+    backgroundColor: colors.primary || '#3B82F6',
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'center',
@@ -191,77 +198,82 @@ const styles = StyleSheet.create({
   },
 
   avatarText: {
-    color: '#ffffff',
+    color: '#FFFFFF',
     fontSize: 36,
-    fontWeight: 'bold',
+    fontWeight: '800',
   },
 
   label: {
-    fontSize: 15,
-    fontWeight: '600',
-    marginBottom: 7,
-    marginTop: 12,
+    fontSize: 14,
+    fontWeight: '700',
+    color: colors.textPrimary || '#111827',
+    marginBottom: 8,
+    marginTop: 14,
   },
 
   input: {
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#cccccc',
-    borderRadius: 10,
-    padding: 14,
+    borderColor: '#E5E7EB',
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 15,
     fontSize: 16,
+    color: colors.textPrimary || '#111827',
   },
 
   readOnlyBox: {
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#dddddd',
-    borderRadius: 10,
-    padding: 14,
-    backgroundColor: '#f4f4f4',
+    borderColor: '#E5E7EB',
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 15,
   },
 
   readOnlyText: {
-    fontSize: 16,
+    fontSize: 15,
+    color: colors.textPrimary || '#111827',
   },
 
   uidText: {
-    fontSize: 13,
+    fontSize: 12,
+    color: colors.textSecondary || '#6B7280',
   },
 
   helperText: {
-    color: '#777777',
+    color: colors.textSecondary || '#6B7280',
     fontSize: 12,
     marginTop: 6,
   },
 
   saveButton: {
-    backgroundColor: '#222222',
-    padding: 15,
-    borderRadius: 10,
+    backgroundColor: colors.primary || '#3B82F6',
+    paddingVertical: 16,
+    borderRadius: 18,
     marginTop: 30,
   },
 
-  disabledButton: {
-    opacity: 0.6,
-  },
-
   saveButtonText: {
-    color: '#ffffff',
+    color: '#FFFFFF',
     textAlign: 'center',
-    fontWeight: 'bold',
+    fontWeight: '700',
     fontSize: 16,
   },
 
   settingsButton: {
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#222222',
-    padding: 15,
-    borderRadius: 10,
+    borderColor: '#E5E7EB',
+    paddingVertical: 16,
+    borderRadius: 18,
     marginTop: 12,
   },
 
   settingsButtonText: {
     textAlign: 'center',
-    fontWeight: 'bold',
+    fontWeight: '700',
     fontSize: 16,
+    color: colors.textPrimary || '#111827',
   },
 });

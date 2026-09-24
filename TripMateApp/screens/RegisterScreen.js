@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 
 import { useAuth } from '../context/AuthContext';
+import colors from '../src/theme/colors';
 
 export default function RegisterScreen({ onGoToLogin }) {
   const { register } = useAuth();
@@ -113,6 +114,7 @@ export default function RegisterScreen({ onGoToLogin }) {
       <TextInput
         style={styles.input}
         placeholder="Full Name"
+        placeholderTextColor="#9CA3AF"
         value={name}
         onChangeText={setName}
         autoCapitalize="words"
@@ -121,6 +123,7 @@ export default function RegisterScreen({ onGoToLogin }) {
       <TextInput
         style={styles.input}
         placeholder="Email Address"
+        placeholderTextColor="#9CA3AF"
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
@@ -131,6 +134,7 @@ export default function RegisterScreen({ onGoToLogin }) {
       <TextInput
         style={styles.input}
         placeholder="Password"
+        placeholderTextColor="#9CA3AF"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
@@ -139,6 +143,7 @@ export default function RegisterScreen({ onGoToLogin }) {
       <TextInput
         style={styles.input}
         placeholder="Confirm Password"
+        placeholderTextColor="#9CA3AF"
         value={confirmPassword}
         onChangeText={setConfirmPassword}
         secureTextEntry
@@ -170,43 +175,51 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     justifyContent: 'center',
-    padding: 24,
-    backgroundColor: '#ffffff',
+    paddingHorizontal: 28,
+    paddingVertical: 40,
+    backgroundColor: colors.background,
   },
 
   logo: {
-    fontSize: 32,
-    fontWeight: 'bold',
+    fontSize: 34,
+    fontWeight: '800',
     textAlign: 'center',
-    marginBottom: 12,
+    color: colors.textPrimary || '#111827',
+    marginBottom: 10,
   },
 
   title: {
-    fontSize: 26,
-    fontWeight: 'bold',
+    fontSize: 28,
+    fontWeight: '800',
     textAlign: 'center',
+    color: colors.textPrimary || '#111827',
   },
 
   subtitle: {
     textAlign: 'center',
     marginTop: 8,
-    marginBottom: 28,
-    color: '#666',
+    marginBottom: 30,
+    color: colors.textSecondary || '#6B7280',
+    fontSize: 15,
+    lineHeight: 22,
   },
 
   input: {
+    backgroundColor: colors.white || '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#cccccc',
-    borderRadius: 10,
-    padding: 14,
+    borderColor: '#E5E7EB',
+    borderRadius: 18,
+    paddingHorizontal: 18,
+    paddingVertical: 16,
     marginBottom: 14,
     fontSize: 16,
+    color: colors.textPrimary || '#111827',
   },
 
   button: {
-    backgroundColor: '#222222',
-    padding: 15,
-    borderRadius: 10,
+    backgroundColor: colors.primary || '#3B82F6',
+    paddingVertical: 17,
+    borderRadius: 18,
     marginTop: 8,
   },
 
@@ -215,9 +228,9 @@ const styles = StyleSheet.create({
   },
 
   buttonText: {
-    color: '#ffffff',
+    color: '#FFFFFF',
     textAlign: 'center',
-    fontWeight: 'bold',
+    fontWeight: '700',
     fontSize: 16,
   },
 
@@ -225,5 +238,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 22,
     fontSize: 15,
+    fontWeight: '600',
+    color: colors.primary || '#3B82F6',
   },
 });

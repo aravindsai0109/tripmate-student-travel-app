@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 
 import { useAuth } from '../context/AuthContext';
+import colors from '../src/theme/colors';
 
 export default function SettingsScreen({
   onBack,
@@ -132,88 +133,91 @@ export default function SettingsScreen({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 24,
-    backgroundColor: '#ffffff',
-  },
-
-  backButton: {
-    marginTop: 18,
-    marginBottom: 20,
+    paddingHorizontal: 24,
+    paddingTop: 55,
+    backgroundColor: colors.background,
   },
 
   backText: {
     fontSize: 16,
     fontWeight: '600',
+    color: colors.primary || '#3B82F6',
   },
 
   heading: {
     fontSize: 28,
-    fontWeight: 'bold',
+    fontWeight: '800',
+    color: colors.textPrimary || '#111827',
     marginBottom: 30,
   },
 
   sectionTitle: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#666666',
-    marginTop: 10,
+    fontSize: 13,
+    fontWeight: '700',
+    color: colors.textSecondary || '#6B7280',
+    marginTop: 15,
     marginBottom: 10,
     textTransform: 'uppercase',
   },
 
   settingItem: {
-    borderBottomWidth: 1,
-    borderBottomColor: '#eeeeee',
-    paddingVertical: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 17,
+    marginBottom: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
 
   itemTitle: {
-    fontSize: 17,
-    fontWeight: '600',
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.textPrimary || '#111827',
   },
 
   itemSubtitle: {
     fontSize: 13,
-    color: '#777777',
+    color: colors.textSecondary || '#6B7280',
     marginTop: 4,
   },
 
   arrow: {
     fontSize: 26,
-    color: '#777777',
+    color: colors.primary || '#3B82F6',
   },
 
   infoBox: {
-    backgroundColor: '#f5f5f5',
-    borderRadius: 10,
-    padding: 16,
-    marginTop: 6,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 17,
+    marginTop: 5,
   },
 
   infoTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '700',
+    color: colors.textPrimary || '#111827',
   },
 
   infoText: {
-    color: '#666666',
+    color: colors.textSecondary || '#6B7280',
     marginTop: 7,
     lineHeight: 20,
   },
 
   logoutButton: {
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#222222',
-    padding: 15,
-    borderRadius: 10,
-    marginTop: 35,
+    borderColor: '#FCA5A5',
+    paddingVertical: 16,
+    borderRadius: 18,
+    marginTop: 30,
   },
 
   logoutText: {
-    fontWeight: 'bold',
+    color: '#DC2626',
+    fontWeight: '700',
     fontSize: 16,
     textAlign: 'center',
   },
