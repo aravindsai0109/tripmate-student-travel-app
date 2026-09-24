@@ -32,7 +32,35 @@ multi-guest reservation frontend with dynamic price calculation.
 He also performed frontend navigation, responsive-layout and end-to-end
 functional testing before group integration.
 
-Member 2 – Authentication & Security
+### Samiksha — Authentication, Security, Profile & Settings Developer
+
+Samiksha implemented the Firebase Authentication foundation for
+TripMate and developed the application's secure user access flow. She
+created the Login and Register interfaces with email/password
+authentication, required-field validation, invalid-email handling,
+password confirmation and incorrect-login error handling.
+
+She also created the AuthContext to manage authenticated user state
+throughout the application and configured persistent authentication
+using React Native AsyncStorage. Protected navigation was integrated
+with the final TripMate navigation structure so unauthenticated users
+cannot access the main application screens until they successfully
+login or register.
+
+Samiksha also developed the authenticated Profile and Settings
+interfaces. The Profile screen displays the signed-in user's name,
+email address and Firebase user ID and supports updating the user's
+display name. The Settings screen provides account information,
+profile access and secure logout with confirmation.
+
+She integrated the authentication flow with Aravindsai's completed
+frontend navigation, replaced the temporary Profile placeholder with
+the functional authenticated Profile screen, aligned the Login,
+Register, Profile and Settings interfaces with the shared TripMate
+UI/UX design, and tested registration, valid/invalid login, logout,
+profile updates, protected access and persistent user sessions before
+group integration.
+
 Member 3 – Backend, Database & RSVP
 Member 4 – Real-Time Features, Testing & Integration
 
