@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import {
   View,
@@ -7,10 +7,16 @@ import {
   Image,
   TouchableOpacity,
   Alert,
+  ScrollView,
 } from 'react-native';
 
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import {
+  SafeAreaView,
+} from 'react-native-safe-area-context';
+
+import {
+  Ionicons,
+} from '@expo/vector-icons';
 
 import colors from '../theme/colors';
 
@@ -20,120 +26,265 @@ export default function BookingScreen({
 }) {
   const { trip } = route.params;
 
+  const [guestCount, setGuestCount] =
+    useState(1);
+
   const serviceFee = 5;
-  const total = trip.price + serviceFee;
+
+  const tripSubtotal =
+    trip.price * guestCount;
+
+  const total =
+    tripSubtotal + serviceFee;
+
+  const increaseGuests = () => {
+    if (guestCount < trip.capacity) {
+      setGuestCount(
+        (current) => current + 1
+      );
+    } else {
+      Alert.alert(
+        'Trip capacity reached',
+        `This trip has a maximum capacity of ${trip.capacity} students.`
+      );
+    }
+  };
+
+  const decreaseGuests = () => {
+    if (guestCount > 1) {
+      setGuestCount(
+        (current) => current - 1
+      );
+    }
+  };
+
+  const handleConfirmRSVP = () => {
+    Alert.alert(
+      'Reservation Preview',
+      `${guestCount} ${
+        guestCount === 1
+          ? 'student'
+          : 'students'
+      } selected for ${trip.title}.\n\n` +
+        `Total: $${total}\n\n` +
+        `Firebase RSVP persistence will be integrated by the backend team member.`
+    );
+  };
 
   return (
     <SafeAreaView style={styles.page}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() =>
-            navigation.goBack()
-          }
-        >
-          <Ionicons
-            name="chevron-back"
-            size={25}
-            color={colors.text}
-          />
-        </TouchableOpacity>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+      >
+        {/* HEADER */}
 
-        <Text style={styles.headerTitle}>
-          Reservation
-        </Text>
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() =>
+              navigation.goBack()
+            }
+          >
+            <Ionicons
+              name="chevron-back"
+              size={26}
+              color={colors.text}
+            />
+          </TouchableOpacity>
 
-        <View style={{ width: 25 }} />
-      </View>
-
-      <View style={styles.container}>
-        <View style={styles.tripCard}>
-          <Image
-            source={{ uri: trip.image }}
-            style={styles.thumbnail}
-          />
-
-          <View style={styles.tripInfo}>
-            <Text style={styles.tripTitle}>
-              {trip.title}
-            </Text>
-
-            <Text style={styles.destination}>
-              {trip.destination}
-            </Text>
-
-            <Text style={styles.price}>
-              From ${trip.price} / person
-            </Text>
-          </View>
-        </View>
-
-        <ReservationRow
-          icon="calendar-outline"
-          label="Trip Date"
-          value={trip.date}
-        />
-
-        <ReservationRow
-          icon="location-outline"
-          label="Meeting Point"
-          value={trip.meetingPoint}
-        />
-
-        <ReservationRow
-          icon="people-outline"
-          label="Guests"
-          value="1 Student"
-        />
-
-        <Text style={styles.sectionTitle}>
-          Price Summary
-        </Text>
-
-        <View style={styles.summaryCard}>
-          <SummaryRow
-            label="Trip price"
-            value={`$${trip.price}`}
-          />
-
-          <SummaryRow
-            label="Service fee"
-            value={`$${serviceFee}`}
-          />
-
-          <View style={styles.divider} />
-
-          <SummaryRow
-            label="Total"
-            value={`$${total}`}
-            bold
-          />
-        </View>
-
-        <TouchableOpacity
-          style={styles.confirmButton}
-          onPress={() =>
-            Alert.alert(
-              'Frontend completed',
-              'RSVP database integration will be connected by the backend team member.'
-            )
-          }
-        >
-          <Text style={styles.confirmText}>
-            Confirm RSVP
+          <Text style={styles.headerTitle}>
+            Reservation
           </Text>
-        </TouchableOpacity>
 
-        <Text style={styles.note}>
-          Demo interface only. Actual RSVP
-          persistence will be integrated with
-          Firebase.
-        </Text>
-      </View>
+          <View style={{ width: 42 }} />
+        </View>
+
+        <View style={styles.container}>
+          {/* SELECTED TRIP */}
+
+          <View style={styles.tripCard}>
+            <Image
+              source={{
+                uri: trip.image,
+              }}
+              style={styles.thumbnail}
+            />
+
+            <View style={styles.tripInfo}>
+              <Text
+                style={styles.tripTitle}
+                numberOfLines={2}
+              >
+                {trip.title}
+              </Text>
+
+              <Text
+                style={styles.destination}
+              >
+                {trip.destination}
+              </Text>
+
+              <Text style={styles.price}>
+                From ${trip.price} / person
+              </Text>
+            </View>
+          </View>
+
+          {/* FIXED DATE */}
+
+          <InfoRow
+            icon="calendar-outline"
+            label="Trip Date"
+            value={trip.date}
+          />
+
+          {/* FIXED MEETING POINT */}
+
+          <InfoRow
+            icon="location-outline"
+            label="Meeting Point"
+            value={trip.meetingPoint}
+          />
+
+          {/* GUEST SELECTOR */}
+
+          <View style={styles.guestCard}>
+            <View style={styles.iconBox}>
+              <Ionicons
+                name="people-outline"
+                size={22}
+                color={colors.primary}
+              />
+            </View>
+
+            <View style={styles.guestInfo}>
+              <Text style={styles.rowLabel}>
+                Guests
+              </Text>
+
+              <Text style={styles.rowValue}>
+                {guestCount}{' '}
+                {guestCount === 1
+                  ? 'Student'
+                  : 'Students'}
+              </Text>
+            </View>
+
+            <View
+              style={
+                styles.guestControls
+              }
+            >
+              <TouchableOpacity
+                style={[
+                  styles.guestButton,
+                  guestCount === 1 &&
+                    styles.disabledButton,
+                ]}
+                onPress={decreaseGuests}
+                disabled={
+                  guestCount === 1
+                }
+              >
+                <Ionicons
+                  name="remove"
+                  size={20}
+                  color={
+                    guestCount === 1
+                      ? '#9CA3AF'
+                      : colors.primary
+                  }
+                />
+              </TouchableOpacity>
+
+              <Text
+                style={
+                  styles.guestNumber
+                }
+              >
+                {guestCount}
+              </Text>
+
+              <TouchableOpacity
+                style={
+                  styles.guestButton
+                }
+                onPress={increaseGuests}
+              >
+                <Ionicons
+                  name="add"
+                  size={20}
+                  color={colors.primary}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* CAPACITY INFORMATION */}
+
+          <Text style={styles.capacityText}>
+            Maximum capacity:{' '}
+            {trip.capacity} students
+          </Text>
+
+          {/* PRICE SUMMARY */}
+
+          <Text style={styles.sectionTitle}>
+            Price Summary
+          </Text>
+
+          <View style={styles.summaryCard}>
+            <SummaryRow
+              label={`Trip price × ${guestCount}`}
+              value={`$${tripSubtotal}`}
+            />
+
+            <SummaryRow
+              label="Service fee"
+              value={`$${serviceFee}`}
+            />
+
+            <View style={styles.divider} />
+
+            <SummaryRow
+              label="Total"
+              value={`$${total}`}
+              bold
+            />
+          </View>
+
+          {/* CONFIRM */}
+
+          <TouchableOpacity
+            style={styles.confirmButton}
+            onPress={
+              handleConfirmRSVP
+            }
+          >
+            <Text
+              style={
+                styles.confirmText
+              }
+            >
+              Confirm RSVP
+            </Text>
+          </TouchableOpacity>
+
+          <Text style={styles.note}>
+            Demo interface only. Actual
+            RSVP persistence will be
+            integrated with Firebase.
+          </Text>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
-function ReservationRow({
+
+/* FIXED INFORMATION ROW */
+
+function InfoRow({
   icon,
   label,
   value,
@@ -143,12 +294,12 @@ function ReservationRow({
       <View style={styles.iconBox}>
         <Ionicons
           name={icon}
-          size={20}
+          size={22}
           color={colors.primary}
         />
       </View>
 
-      <View style={{ flex: 1 }}>
+      <View style={styles.rowContent}>
         <Text style={styles.rowLabel}>
           {label}
         </Text>
@@ -157,15 +308,12 @@ function ReservationRow({
           {value}
         </Text>
       </View>
-
-      <Ionicons
-        name="chevron-forward"
-        size={19}
-        color={colors.textSecondary}
-      />
     </View>
   );
 }
+
+
+/* PRICE ROW */
 
 function SummaryRow({
   label,
@@ -195,158 +343,306 @@ function SummaryRow({
   );
 }
 
+
 const styles = StyleSheet.create({
   page: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor:
+      colors.background,
   },
 
   header: {
-    height: 60,
+    height: 65,
+
     paddingHorizontal: 20,
+
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: 'center',
+    justifyContent:
+      'space-between',
+  },
+
+  backButton: {
+    width: 42,
+    height: 42,
+
+    borderRadius: 14,
+
+    justifyContent: 'center',
     alignItems: 'center',
   },
 
   headerTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '800',
     color: colors.text,
   },
 
   container: {
     paddingHorizontal: 20,
+    paddingBottom: 40,
   },
 
   tripCard: {
-    backgroundColor: colors.white,
-    borderRadius: 20,
+    backgroundColor:
+      colors.white,
+
+    borderRadius: 22,
+
     padding: 12,
+
     flexDirection: 'row',
+
     marginTop: 10,
+    marginBottom: 10,
   },
 
   thumbnail: {
-    width: 92,
-    height: 82,
-    borderRadius: 15,
+    width: 95,
+    height: 90,
+
+    borderRadius: 16,
   },
 
   tripInfo: {
     flex: 1,
-    marginLeft: 13,
+
+    marginLeft: 14,
+
     justifyContent: 'center',
   },
 
   tripTitle: {
     fontWeight: '800',
-    fontSize: 15,
+    fontSize: 16,
+
     color: colors.text,
   },
 
   destination: {
-    marginTop: 5,
-    color: colors.textSecondary,
+    marginTop: 6,
+
+    color:
+      colors.textSecondary,
+
     fontSize: 12,
   },
 
   price: {
     marginTop: 7,
+
     color: colors.primary,
+
+    fontSize: 13,
     fontWeight: '700',
   },
 
   row: {
-    minHeight: 69,
+    minHeight: 82,
+
     marginTop: 13,
-    paddingHorizontal: 14,
-    backgroundColor: colors.white,
-    borderRadius: 16,
+
+    paddingHorizontal: 15,
+
+    backgroundColor:
+      colors.white,
+
+    borderRadius: 20,
+
     flexDirection: 'row',
     alignItems: 'center',
   },
 
   iconBox: {
-    width: 40,
-    height: 40,
-    borderRadius: 13,
-    backgroundColor: colors.primaryLight,
+    width: 45,
+    height: 45,
+
+    borderRadius: 14,
+
+    backgroundColor:
+      colors.primaryLight,
+
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+
+    marginRight: 13,
+  },
+
+  rowContent: {
+    flex: 1,
   },
 
   rowLabel: {
-    color: colors.textSecondary,
-    fontSize: 11,
+    color:
+      colors.textSecondary,
+
+    fontSize: 12,
+
+    fontWeight: '600',
   },
 
   rowValue: {
-    marginTop: 3,
+    marginTop: 4,
+
     color: colors.text,
-    fontWeight: '700',
+
+    fontSize: 16,
+    fontWeight: '800',
+  },
+
+  guestCard: {
+    minHeight: 92,
+
+    marginTop: 13,
+
+    paddingHorizontal: 15,
+
+    backgroundColor:
+      colors.white,
+
+    borderRadius: 20,
+
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  guestInfo: {
+    flex: 1,
+  },
+
+  guestControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  guestButton: {
+    width: 38,
+    height: 38,
+
+    borderRadius: 12,
+
+    backgroundColor:
+      colors.primaryLight,
+
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  disabledButton: {
+    backgroundColor: '#F3F4F6',
+  },
+
+  guestNumber: {
+    minWidth: 35,
+
+    textAlign: 'center',
+
+    fontSize: 18,
+    fontWeight: '800',
+
+    color: colors.text,
+  },
+
+  capacityText: {
+    marginTop: 9,
+    marginLeft: 5,
+
+    fontSize: 11,
+
+    color:
+      colors.textSecondary,
   },
 
   sectionTitle: {
-    marginTop: 24,
-    marginBottom: 10,
-    fontSize: 18,
+    marginTop: 27,
+    marginBottom: 11,
+
+    fontSize: 20,
     fontWeight: '800',
+
     color: colors.text,
   },
 
   summaryCard: {
-    backgroundColor: colors.white,
-    borderRadius: 18,
-    padding: 18,
+    backgroundColor:
+      colors.white,
+
+    borderRadius: 20,
+
+    padding: 19,
   },
 
   summaryRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 7,
+
+    justifyContent:
+      'space-between',
+
+    paddingVertical: 8,
   },
 
   summaryLabel: {
-    color: colors.textSecondary,
+    color:
+      colors.textSecondary,
+
+    fontSize: 14,
   },
 
   summaryValue: {
     color: colors.text,
-  },
 
-  bold: {
-    fontWeight: '800',
-    fontSize: 16,
-    color: colors.text,
+    fontSize: 14,
   },
 
   divider: {
     height: 1,
-    backgroundColor: colors.border,
-    marginVertical: 8,
+
+    backgroundColor:
+      colors.border,
+
+    marginVertical: 10,
+  },
+
+  bold: {
+    fontWeight: '800',
+
+    fontSize: 17,
+
+    color: colors.text,
   },
 
   confirmButton: {
-    backgroundColor: colors.primary,
-    marginTop: 25,
+    backgroundColor:
+      colors.primary,
+
+    marginTop: 27,
+
     borderRadius: 18,
-    paddingVertical: 17,
+
+    paddingVertical: 18,
+
     alignItems: 'center',
   },
 
   confirmText: {
     color: colors.white,
+
     fontSize: 16,
     fontWeight: '800',
   },
 
   note: {
-    marginTop: 10,
+    marginTop: 12,
+
+    paddingHorizontal: 12,
+
     textAlign: 'center',
-    color: colors.textSecondary,
+
+    color:
+      colors.textSecondary,
+
     fontSize: 11,
-    lineHeight: 16,
+
+    lineHeight: 17,
   },
 });

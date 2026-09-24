@@ -7,6 +7,7 @@ import {
   ImageBackground,
   TouchableOpacity,
   ScrollView,
+  Share,
 } from 'react-native';
 
 import {
@@ -22,6 +23,22 @@ export default function TripDetailsScreen({
   navigation,
 }) {
   const { trip } = route.params;
+
+  const handleShare = async () => {
+  try {
+    await Share.share({
+      title: trip.title,
+      message:
+        `Check out ${trip.title} on TripMate!\n\n` +
+        `Destination: ${trip.destination}\n` +
+        `Date: ${trip.date}\n` +
+        `Price: $${trip.price} per person\n\n` +
+        `Explore student adventures with TripMate.`,
+    });
+  } catch (error) {
+    console.log('Share error:', error);
+  }
+};
 
   const {
   isSaved,
@@ -72,6 +89,7 @@ const saved = isSaved(trip.id);
                   styles.circleButton,
                   { marginLeft: 10 },
                 ]}
+                onPress={handleShare}
               >
                 <Ionicons
                   name="share-outline"
