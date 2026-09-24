@@ -16,6 +16,8 @@ import {
 
 import { useFavorites } from '../context/FavoritesContext';
 
+import CommentSection from '../components/CommentSection';
+
 import colors from '../theme/colors';
 
 export default function TripDetailsScreen({
@@ -200,6 +202,10 @@ const saved = isSaved(trip.id);
               Reserve Your Spot
             </Text>
           </TouchableOpacity>
+
+          <CommentSection
+            tripId={trip.id}
+          />
         </View>
       </ScrollView>
     </View>
