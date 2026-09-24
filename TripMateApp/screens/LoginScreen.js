@@ -33,29 +33,14 @@ export default function LoginScreen({ onGoToRegister }) {
 
       await login(email, password);
     } catch (error) {
-      console.log('Login error:', error.code);
+        console.log('LOGIN ERROR CODE:', error.code);
+        console.log('LOGIN ERROR MESSAGE:', error.message);
 
-      let message =
-        'Unable to login. Please check your details and try again.';
-
-      if (
-        error.code === 'auth/invalid-credential' ||
-        error.code === 'auth/wrong-password' ||
-        error.code === 'auth/user-not-found'
-      ) {
-        message = 'Incorrect email or password.';
-      } else if (error.code === 'auth/invalid-email') {
-        message = 'Please enter a valid email address.';
-      } else if (error.code === 'auth/too-many-requests') {
-        message =
-          'Too many unsuccessful login attempts. Please try again later.';
-      } else if (error.code === 'auth/network-request-failed') {
-        message =
-          'Network connection failed. Please check your internet connection.';
-      }
-
-      Alert.alert('Login failed', message);
-    } finally {
+        Alert.alert(
+          'Login Failed',
+          `${error.code}\n${error.message}`
+        );
+      } finally {
       setSubmitting(false);
     }
   };
