@@ -18,7 +18,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
 import colors from '../src/theme/colors';
 
-export default function ProfileScreen({ onBack, onOpenSettings,}) {
+export default function ProfileScreen({
+  onBack,
+  onOpenSettings,
+  onOpenOrganiser,
+}) {
   const {
     user,
     updateDisplayName,
@@ -150,6 +154,23 @@ export default function ProfileScreen({ onBack, onOpenSettings,}) {
         </Text>
       </TouchableOpacity>
 
+      {user?.role === 'organiser' && (
+        <TouchableOpacity
+          style={styles.organiserButton}
+          onPress={onOpenOrganiser}
+        >
+          <Ionicons
+            name="briefcase-outline"
+            size={20}
+            color="#FFFFFF"
+          />
+
+          <Text style={styles.organiserButtonText}>
+            Manage Trips
+          </Text>
+        </TouchableOpacity>
+      )}
+
       <TouchableOpacity
         style={styles.settingsButton}
         onPress={onOpenSettings}
@@ -275,5 +296,22 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     fontSize: 16,
     color: colors.textPrimary || '#111827',
+  },
+
+  organiserButton: {
+    backgroundColor: colors.primary || '#3B82F6',
+    paddingVertical: 16,
+    borderRadius: 18,
+    marginTop: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+organiserButtonText: {
+    marginLeft: 8,
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 16,
   },
 });

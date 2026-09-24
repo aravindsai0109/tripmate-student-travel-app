@@ -37,6 +37,8 @@ import RegisterScreen from '../../screens/RegisterScreen';
 import ProfileScreen from '../../screens/ProfileScreen';
 import SettingsScreen from '../../screens/SettingsScreen';
 
+import OrganiserScreen from '../../screens/OrganiserScreen';
+
 import { useAuth } from '../../context/AuthContext';
 
 import colors from '../theme/colors';
@@ -70,8 +72,17 @@ function ProfileTabScreen({ navigation }) {
       onBack={() =>
         navigation.navigate('Home')
       }
+
       onOpenSettings={() =>
-        navigation.getParent()?.navigate('Settings')
+        navigation
+          .getParent()
+          ?.navigate('Settings')
+      }
+
+      onOpenOrganiser={() =>
+        navigation
+          .getParent()
+          ?.navigate('Organiser')
       }
     />
   );
@@ -182,6 +193,13 @@ export default function AppNavigator() {
     loading,
   } = useAuth();
 
+  console.log(
+  'SIGNED IN USER:',
+  user?.email,
+  'ROLE:',
+  user?.role
+);
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -253,6 +271,13 @@ export default function AppNavigator() {
               name="Settings"
               component={SettingsRoute}
             />
+
+            {user?.role === 'organiser' && (
+            <Stack.Screen
+              name="Organiser"
+              component={OrganiserScreen}
+            />
+          )}
           </>
         )}
       </Stack.Navigator>
